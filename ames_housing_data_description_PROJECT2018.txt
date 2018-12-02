@@ -1,0 +1,26 @@
+Data set contains information from the Ames Assessor’s Office used in computing assessed values for individual residential properties sold in Ames, IA from 2006 to 2010.
+
+VARIABLE DESCRIPTIONS:
+
+Lot Area: Lot size in square feet
+					
+Style: Style of dwelling
+	
+       1Story	One story
+       2Story	Two story
+			
+YearBuilt: Original construction date
+
+SqFt: Above grade (ground) living area square feet
+
+FullBath: Full bathrooms above grade
+
+HalfBath: Half baths above grade
+
+Bedrooms: Bedrooms above grade (does NOT include basement bedrooms)
+       	
+Rooms: Total rooms above grade (does not include bathrooms)
+				
+SalePrice (Continuous): Sale price $$
+
+

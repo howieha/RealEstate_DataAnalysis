@@ -1,0 +1,62 @@
+---
+title: "Final_project"
+author: "Shijie Qu & Yifan Song"
+date: "12/1/2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+realEst_data = read.csv("ames_housing_data_PROJECT2018.csv")
+library(tidyverse)
+glimpse(data)
+```
+
+### AR-1
+```{r}
+library(car)
+library(GGally)
+ggpairs(data = realEst_data, columns = c ("SalePrice","LotArea","YearBuilt","SqFt"))
+```
+
+
+```{r}
+## SalePrice vs LotArea
+
+# take log of only LotArea
+plot(log(realEst_data$LotArea),realEst_data$SalePrice,xlab = "log(LotArea)",ylab = "SalePrice",main = "SalePrice vs log(LotArea)")
+lm1_1 = lm(SalePrice~log(LotArea),data = realEst_data)
+abline(lm1_1)
+summary(lm1_1)
+
+# take log of both
+plot(log(realEst_data$LotArea),log(realEst_data$SalePrice),xlab = "log(LotArea)",ylab = "log(SalePrice)",main = "log(SalePrice) vs log(LotArea)")
+lm1_2 = lm(log(SalePrice)~log(LotArea),data = realEst_data)
+abline(lm1_2)
+summary(lm1_2)
+
+# take log of only SalePrice
+plot(realEst_data$LotArea,log(realEst_data$SalePrice),xlab = "LotArea",ylab = "log(SalePrice)",main = "log(SalePrice) vs LotArea")
+lm1_3 = lm(log(SalePrice)~LotArea,data = realEst_data)
+abline(lm1_3)
+summary(lm1_3)
+
+```
+
+
+```{r}
+## SalePrice vs YearBuilt
+
+# take log of only SalePrice
+plot(realEst_data$YearBuilt,log(realEst_data$SalePrice),xlab = "YearBuilt",ylab = "log(SalePrice)",main = "log(SalePrice) vs YearBuilt")
+lm2_1 = lm(log(SalePrice)~YearBuilt,data = realEst_data)
+abline(lm2_1)
+summary(lm2_1)
+```
+
+
+
+
