@@ -12,51 +12,89 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 realEst_data = read.csv("ames_housing_data_PROJECT2018.csv")
 library(tidyverse)
+library(car)
+library(GGally)
 glimpse(data)
 ```
 
 ### AR-1
 ```{r}
-library(car)
-library(GGally)
 ggpairs(data = realEst_data, columns = c ("SalePrice","LotArea","YearBuilt","SqFt"))
 ```
-
 
 ```{r}
 ## SalePrice vs LotArea
 
-# take log of only LotArea
-plot(log(realEst_data$LotArea),realEst_data$SalePrice,xlab = "log(LotArea)",ylab = "SalePrice",main = "SalePrice vs log(LotArea)")
-lm1_1 = lm(SalePrice~log(LotArea),data = realEst_data)
-abline(lm1_1)
-summary(lm1_1)
-
 # take log of both
 plot(log(realEst_data$LotArea),log(realEst_data$SalePrice),xlab = "log(LotArea)",ylab = "log(SalePrice)",main = "log(SalePrice) vs log(LotArea)")
-lm1_2 = lm(log(SalePrice)~log(LotArea),data = realEst_data)
-abline(lm1_2)
-summary(lm1_2)
-
-# take log of only SalePrice
-plot(realEst_data$LotArea,log(realEst_data$SalePrice),xlab = "LotArea",ylab = "log(SalePrice)",main = "log(SalePrice) vs LotArea")
-lm1_3 = lm(log(SalePrice)~LotArea,data = realEst_data)
-abline(lm1_3)
-summary(lm1_3)
-
+lm1 = lm(log(SalePrice)~log(LotArea),data = realEst_data)
+abline(lm1)
+summary(lm1)
 ```
-
 
 ```{r}
 ## SalePrice vs YearBuilt
 
 # take log of only SalePrice
 plot(realEst_data$YearBuilt,log(realEst_data$SalePrice),xlab = "YearBuilt",ylab = "log(SalePrice)",main = "log(SalePrice) vs YearBuilt")
-lm2_1 = lm(log(SalePrice)~YearBuilt,data = realEst_data)
-abline(lm2_1)
-summary(lm2_1)
+lm2 = lm(log(SalePrice)~YearBuilt,data = realEst_data)
+abline(lm2)
+summary(lm2)
+```
+
+```{r}
+## SalePrice vs SqrFt
+
+# take log of only SalePrice
+plot(realEst_data$SqFt,log(realEst_data$SalePrice),xlab = "SqFt",ylab = "log(SalePrice)",main = "log(SalePrice) vs log(LotArea)")
+lm3 = lm(log(SalePrice)~SqFt,data = realEst_data)
+abline(lm3)
+summary(lm3)
+```
+
+### AR-2
+```{r}
+## Build linear model
+mod = lm(log(SalePrice)~SqFt+log(LotArea)+YearBuilt,data = realEst_data)
+summary(mod)
+
+```
+
+```{r}
+##??Check interaction
+newdata1 = subset(realEst_data, YearBuilt>=1960 & YearBuilt <= 1970)
+newdata2 = subset(realEst_data, YearBuilt>=1975 & YearBuilt <= 1985)
+newdata3 = subset(realEst_data, YearBuilt>=1990 & YearBuilt <= 2000)
+plot(newdata1$SqFt, newdata1$SalePrice)
+lm(newdata1$SalePrice~newdata1$SqFt)
+plot(newdata2$SqFt, newdata2$SalePrice)
+lm(newdata2$SalePrice~newdata2$SqFt)
+plot(newdata3$SqFt, newdata3$SalePrice)
+lm(newdata3$SalePrice~newdata3$SqFt)
+```
+
+```{r}
+##???Check interaction
+AIC(lm(log(SalePrice)~SqFt+log(LotArea)+YearBuilt+SqFt:log(LotArea),data = realEst_data)) - AIC(mod)
+BIC(lm(log(SalePrice)~SqFt+log(LotArea)+YearBuilt+SqFt:log(LotArea),data = realEst_data)) - BIC(mod)
+AIC(lm(log(SalePrice)~SqFt+log(LotArea)+YearBuilt+SqFt:YearBuilt,data = realEst_data)) - AIC(mod)
+BIC(lm(log(SalePrice)~SqFt+log(LotArea)+YearBuilt+SqFt:YearBuilt,data = realEst_data)) - BIC(mod)
+AIC(lm(log(SalePrice)~SqFt+log(LotArea)+YearBuilt+log(LotArea):YearBuilt,data = realEst_data)) - AIC(mod)
+BIC(lm(log(SalePrice)~SqFt+log(LotArea)+YearBuilt+log(LotArea):YearBuilt,data = realEst_data)) - BIC(mod)
+anova(mod, lm(log(SalePrice)~SqFt+log(LotArea)+YearBuilt+SqFt:log(LotArea),data = realEst_data))
+anova(mod, lm(log(SalePrice)~SqFt+log(LotArea)+YearBuilt+SqFt:YearBuilt,data = realEst_data))
+anova(mod, lm(log(SalePrice)~SqFt+log(LotArea)+YearBuilt+log(LotArea):YearBuilt,data = realEst_data))
+```
+
+```{r}
+##Residual plot and QQ-plot
+plot(fitted(mod),resid(mod))
+abline(h=0)
+qqnorm(resid(mod));qqline(resid(mod))
 ```
 
 
+### AR-3
+```{r}
 
-
+```
