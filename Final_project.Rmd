@@ -40,6 +40,13 @@ plot(realEst_data$YearBuilt,log(realEst_data$SalePrice),xlab = "YearBuilt",ylab 
 lm2 = lm(log(SalePrice)~YearBuilt,data = realEst_data)
 abline(lm2)
 summary(lm2)
+
+# try quadratic model
+lm2_1 = lm(log(SalePrice)~YearBuilt + I(YearBuilt^2),data = realEst_data);
+
+
+plot(realEst_data$YearBuilt,log(realEst_data$SalePrice),xlab = "YearBuilt",ylab = "log(SalePrice)",main = "log(SalePrice) vs YearBuilt",col="red")
+points(realEst_data$YearBuilt,fitted(lm2_1),col="blue");
 ```
 
 ```{r}
@@ -47,7 +54,7 @@ summary(lm2)
 
 # take log of only SalePrice
 plot(realEst_data$SqFt,log(realEst_data$SalePrice),xlab = "SqFt",ylab = "log(SalePrice)",main = "log(SalePrice) vs log(LotArea)")
-lm3 = lm(log(SalePrice)~SqFt,data = realEst_data)
+lm3 = lm(log(SalePrice)~SqFt , data = realEst_data)
 abline(lm3)
 summary(lm3)
 ```
