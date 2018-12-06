@@ -83,11 +83,10 @@ anova(mod, lm(log(SalePrice)~SqFt+log(LotArea)+YearBuilt+log(LotArea):YearBuilt,
 
 ```{r}
 ##Residual plot and QQ-plot
-plot(fitted(mod),resid(mod))
+plot(fitted(mod),resid(mod),main="Residual plot of the model")
 abline(h=0)
 qqnorm(resid(mod));qqline(resid(mod))
 ```
-
 
 ### AR-3
 ```{r}
@@ -139,7 +138,7 @@ diffO
 
 ```{r}
 # decide whether to combine half&full bath to bath
-bath = realEst_data$FullBath+realEst_data$HalfBath
+bath = realEst_data$FullBath+0.5*realEst_data$HalfBath
 combineBath = lm(log(SalePrice)~SqFt+log(LotArea)+YearBuilt+bath+Bedroom_Fact+Style,data = realEst_data)
 
 seperateBath = lm(log(SalePrice)~SqFt+log(LotArea)+YearBuilt+HalfBath+FullBath+Bedroom_Fact+Style,data = realEst_data)
@@ -175,7 +174,38 @@ newlm$terms
 ```{r}
 ##Residual plot and QQ-plot
 summary(newlm)
-plot(newlm$fitted.values,newlm$residuals)
+plot(newlm$fitted.values,newlm$residuals,main="Residual plot of the model")
 abline(h=0)
 qqnorm(newlm$residuals);qqline(newlm$residuals)
 ```
+
+
+
+### AR-4
+
+```{r}
+summary(newlm)
+```
+
+```{r}
+# suppose sqFt = 1995, YearBuilt = 2013, Style = 2 story, Bedrooms = 3, FullBath = 2, halfBath = 2, Rooms = 10, LotArea = 15500.
+
+d = data.frame(SqFt = 1995, YearBuilt = 2013, Style = '2Story', Bedroom_Fact = '3', LotArea = 15500, HalfBath = 2);
+pridict_model = predict(newlm, d, se.fit = TRUE)
+price = pridict_model$fit
+price = exp(price)
+price
+
+
+```
+
+```{r}
+# 95% prediction interval for log(salePrize)
+logPI = predict(newlm, newdata=d, interval="prediction", level=.95)
+logPI
+realPI = exp(logPI)
+realPI
+
+```
+
+
