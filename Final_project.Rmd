@@ -67,18 +67,6 @@ summary(mod)
 
 ```
 
-```{r}
-##??Check interaction
-newdata1 = subset(realEst_data, YearBuilt>=1960 & YearBuilt <= 1970)
-newdata2 = subset(realEst_data, YearBuilt>=1975 & YearBuilt <= 1985)
-newdata3 = subset(realEst_data, YearBuilt>=1990 & YearBuilt <= 2000)
-plot(newdata1$SqFt, newdata1$SalePrice)
-lm(newdata1$SalePrice~newdata1$SqFt)
-plot(newdata2$SqFt, newdata2$SalePrice)
-lm(newdata2$SalePrice~newdata2$SqFt)
-plot(newdata3$SqFt, newdata3$SalePrice)
-lm(newdata3$SalePrice~newdata3$SqFt)
-```
 
 ```{r}
 ##???Check interaction
@@ -103,13 +91,14 @@ qqnorm(resid(mod));qqline(resid(mod))
 
 ### AR-3
 ```{r}
-# determmine to use
+# try to use see whether use factored variable or continuous variable
 
 HalfBath_Fact = as.factor(realEst_data$HalfBath)
 FullBath_Fact = as.factor(realEst_data$FullBath)
 Bedroom_Fact = as.factor(realEst_data$Bedrooms)
 Room_Fact = as.factor(realEst_data$Rooms)
 
+# decide whether combine half&full bath 
 
 # decide rooms to be continuous or factored variable
 roomFact = lm(log(SalePrice)~SqFt+log(LotArea)+YearBuilt+Room_Fact+Style,data = realEst_data)
@@ -136,24 +125,38 @@ diffBedrooms = BIC(BedroomsFact) - BIC(BedroomsCont)
 diffBedrooms
 
 # decide whether should replace Rooms as a predictor
-WithRooms = lm(log(SalePrice)~SqFt+log(LotArea)+YearBuilt+HalfBath_Fact+FullBath_Fact+Bedroom_Fact+Room_Fact+Style,data = realEst_data)
-NoRooms = lm(log(SalePrice)~SqFt+log(LotArea)+YearBuilt+HalfBath_Fact+FullBath_Fact+Bedroom_Fact+Style,data = realEst_data)
+WithRooms = lm(log(SalePrice)~SqFt+log(LotArea)+YearBuilt+HalfBath+FullBath+Bedroom_Fact+Room_Fact+Style,data = realEst_data)
+NoRooms = lm(log(SalePrice)~SqFt+log(LotArea)+YearBuilt+HalfBath+FullBath+Bedroom_Fact+Style,data = realEst_data)
 diffR = BIC(WithRooms) - BIC(NoRooms)
 diffR
 
+# decide whether should replace other type of rooms (keep only with the # of total rooms)
+WithOtherRooms = lm(log(SalePrice)~SqFt+log(LotArea)+YearBuilt+HalfBath+FullBath+Bedroom_Fact+Room_Fact+Style,data = realEst_data)
+NoOtherRooms = lm(log(SalePrice)~SqFt+log(LotArea)+YearBuilt+Room_Fact+Style,data = realEst_data)
+diffO = BIC(WithOtherRooms) - BIC(NoOtherRooms)
+diffO
+```
 
+```{r}
+# decide whether to combine half&full bath to bath
+bath = realEst_data$FullBath+realEst_data$HalfBath
+combineBath = lm(log(SalePrice)~SqFt+log(LotArea)+YearBuilt+bath+Bedroom_Fact+Style,data = realEst_data)
 
+seperateBath = lm(log(SalePrice)~SqFt+log(LotArea)+YearBuilt+HalfBath+FullBath+Bedroom_Fact+Style,data = realEst_data)
 
-## therefore, use factored value & with rooms
-
+diffR = BIC(combineBath) - BIC(seperateBath)
+diffR
 
 ```
+## therefore, use factored value bedroom and continuous for full bath and half bath & without rooms
+
+
 
 ```{r}
 
 # stepwise regression by AIC
 null = lm(log(SalePrice)~1, data = realEst_data )
-full = lm(log(SalePrice)~SqFt+log(LotArea)+YearBuilt+HalfBath+FullBath+Bedroom_Fact+Room_Fact+Style,data = realEst_data)
+full = lm(log(SalePrice)~SqFt+log(LotArea)+YearBuilt+HalfBath+FullBath+Bedroom_Fact+Style,data = realEst_data)
 
 library(MASS)
 stepAIC(full,scope = list(lower=null,upper=full),direction="both",k=log(dim(realEst_data)[1]));
@@ -171,6 +174,7 @@ newlm$terms
 
 ```{r}
 ##Residual plot and QQ-plot
+summary(newlm)
 plot(newlm$fitted.values,newlm$residuals)
 abline(h=0)
 qqnorm(newlm$residuals);qqline(newlm$residuals)
