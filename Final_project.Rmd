@@ -44,7 +44,7 @@ summary(lm2)
 # try quadratic model
 lm2_1 = lm(log(SalePrice)~YearBuilt + I(YearBuilt^2),data = realEst_data);
 
-
+summary(lm2_1)
 plot(realEst_data$YearBuilt,log(realEst_data$SalePrice),xlab = "YearBuilt",ylab = "log(SalePrice)",main = "log(SalePrice) vs YearBuilt",col="red")
 points(realEst_data$YearBuilt,fitted(lm2_1),col="blue");
 ```
